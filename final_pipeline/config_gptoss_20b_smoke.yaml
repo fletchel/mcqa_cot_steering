@@ -1,0 +1,47 @@
+# Smoke test: GPT-OSS-20B machinery check (2x A100 bf16, ~30-60 min)
+# 50 pairs (25 per dataset) -> ~42 train, 0 dev, ~8 test
+# MoE (32 experts, 4 active), 24 layers, d_model 2880, Harmony chat format.
+# MXFP4 weights auto-dequantize to bf16 on A100 (~42GB, needs 2 GPUs).
+# Pre-CoT prompts render natively into the final channel (no analysis block).
+# CoT answer extraction splits response on 'assistantfinal' (stripped Harmony markers).
+# 8k token budget doubles as thinking-length calibration for this model.
+model_name: openai/gpt-oss-20b
+datasets: [mmlu, hellaswag]
+num_datapoints_per_dataset: 25
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+
+split:
+  train_fraction: 0.833
+  dev_fraction: 0.0
+  test_fraction: 0.167
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 8
+  max_pairs: 20
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 2.0]
+  logit_batch_size: 16
+  cot_alpha: 2.0
+  cot_batch_size: 16
+  cot_max_new_tokens: 8192
+
+layer_sweeps:
+  num_datapoints: 20
+  window_size: 5
+
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: /scratch-shared/lfletcher/huggingface/hub

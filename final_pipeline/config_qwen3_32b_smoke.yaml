@@ -1,0 +1,44 @@
+# Smoke test: Qwen3-32B — standard-attention control, quick read (1x H100, ~1h)
+# 50 pairs (25 per dataset) -> ~42 train, 0 dev, ~8 test
+# Dense 64-layer standard transformer; fat KV (~260KB/token) so small CoT batches.
+# Pre-CoT prompts get an empty <think></think> block automatically via the chat template.
+model_name: Qwen/Qwen3-32B
+datasets: [mmlu, hellaswag]
+num_datapoints_per_dataset: 25
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+
+split:
+  train_fraction: 0.833
+  dev_fraction: 0.0
+  test_fraction: 0.167
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 8
+  max_pairs: 20
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 2.0]
+  logit_batch_size: 8
+  cot_alpha: 2.0
+  cot_max_new_tokens: 8192
+  cot_batch_size: 4
+
+layer_sweeps:
+  num_datapoints: 20
+  window_size: 5
+
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: /scratch-shared/lfletcher/huggingface/hub

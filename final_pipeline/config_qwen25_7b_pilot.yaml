@@ -1,0 +1,43 @@
+# Pilot: Qwen2.5-7B-Instruct — sanity check that the current pipeline reproduces the paper-era results (1x H100)
+# 500 pairs (250 per dataset) -> ~415 train, 0 dev, ~85 test
+# No dev split: steering stages fall back to all-layers ("Lall") configs.
+model_name: Qwen/Qwen2.5-7B-Instruct
+datasets: [mmlu, hellaswag]
+num_datapoints_per_dataset: 250
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+
+split:
+  train_fraction: 0.833
+  dev_fraction: 0.0
+  test_fraction: 0.167
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 16
+  max_pairs: 400
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 1.0, 2.0, 3.0]
+  logit_batch_size: 64
+  cot_alpha: 2.0
+  cot_batch_size: 24
+  cot_max_new_tokens: 8192
+
+layer_sweeps:
+  num_datapoints: 50
+  window_size: 5
+
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: /scratch-shared/lfletcher/huggingface/hub

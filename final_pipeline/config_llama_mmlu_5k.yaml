@@ -1,0 +1,43 @@
+# llama MMLU 5000 train / 1000 test / 200 dev
+# CoT steering uses best window-8 from prior sweep
+model_name: meta-llama/Llama-3.1-8B-Instruct
+datasets: [mmlu]
+num_datapoints_per_dataset: 6200
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+  n_choices: 4
+
+split:
+  train_fraction: 0.806
+  dev_fraction: 0.032
+  test_fraction: 0.161
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 16
+  max_pairs: 500
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 1.0, 2.0]
+  logit_batch_size: 64
+  cot_alpha: 2.0
+  cot_batch_size: 24
+  cot_layers: [10,11,12,13,14,15,16,17]
+
+layer_sweeps:
+  num_datapoints: 200
+  window_size: 5
+
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: null

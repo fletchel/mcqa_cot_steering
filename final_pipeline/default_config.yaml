@@ -1,0 +1,43 @@
+# Final Pipeline Configuration
+# All stages in one sweep with train/dev/test split
+
+model_name: Qwen/Qwen2.5-7B-Instruct
+datasets: [mmlu, hellaswag]
+num_datapoints_per_dataset: 500
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+
+split:
+  train_fraction: 0.7
+  dev_fraction: 0.15
+  test_fraction: 0.15
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 16
+  max_pairs: 500
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 1.0, 2.0]
+  logit_batch_size: 64
+  cot_alpha: 2.0
+  cot_batch_size: 24
+
+layer_sweeps:
+  num_datapoints: 250
+  window_size: 5
+
+# HF-specific
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: null

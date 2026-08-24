@@ -1,0 +1,45 @@
+# Pilot run: Qwen3.6-27B (2x A100 bf16, device_map auto)
+# 500 pairs (250 per dataset) -> ~415 train, 0 dev, ~85 test
+# No dev split: steering stages fall back to all-layers ("Lall") configs.
+# cot_max_new_tokens calibrated from smoke run: baseline thinking ~3k tokens,
+# steered ~4.4k max; 8192 gives ~2x headroom.
+model_name: Qwen/Qwen3.6-27B
+datasets: [mmlu, hellaswag]
+num_datapoints_per_dataset: 250
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+
+split:
+  train_fraction: 0.833
+  dev_fraction: 0.0
+  test_fraction: 0.167
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 8
+  max_pairs: 400
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 1.0, 2.0, 3.0]
+  logit_batch_size: 16
+  cot_alpha: 2.0
+  cot_batch_size: 24  # 64 OOMs on 2x A100-40GB at ~5k thinking tokens; 24 proven in calibration
+  cot_max_new_tokens: 8192
+
+layer_sweeps:
+  num_datapoints: 50
+  window_size: 5
+
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: /scratch-shared/lfletcher/huggingface/hub

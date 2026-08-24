@@ -1,0 +1,40 @@
+# Qwen 2.5 3B-Instruct, MMLU + HellaSwag big-style run
+# All-layers steering only — no narrow window. Matches qwen_big test scale.
+model_name: Qwen/Qwen2.5-3B-Instruct
+datasets: [mmlu, hellaswag]
+num_datapoints_per_dataset: 3500
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+
+split:
+  train_fraction: 0.714
+  dev_fraction: 0.143
+  test_fraction: 0.143
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 32
+  max_pairs: 500
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 1.0, 2.0]
+  logit_batch_size: 96
+  cot_alpha: 2.0
+  cot_batch_size: 32
+  # Force all-layers CoT (Qwen 2.5-3B has 36 layers).
+  cot_layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+               18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: null

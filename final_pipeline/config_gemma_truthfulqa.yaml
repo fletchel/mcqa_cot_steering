@@ -1,0 +1,40 @@
+# gemma TruthfulQA — full dataset, variable n_choices
+model_name: google/gemma-2-9b-it
+datasets: [truthfulqa]
+num_datapoints_per_dataset: 9999
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: false
+
+split:
+  train_fraction: 0.768
+  dev_fraction: 0.077
+  test_fraction: 0.155
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 8
+  max_pairs: 250
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 1.0, 2.0]
+  logit_batch_size: 16
+  cot_alpha: 2.0
+  cot_batch_size: 16
+
+layer_sweeps:
+  num_datapoints: 50
+  window_size: 5
+
+load_in_8bit: false
+load_in_4bit: false
+cache_dir: null

@@ -1,0 +1,44 @@
+# Llama 3.1 70B MMLU: 700 train / 100 dev / 200 test, 4-bit quantization
+# Forces all-layers steering (no narrow window) by setting cot_layers explicitly
+# and skipping the layer_sweeps stage at submission time.
+model_name: meta-llama/Llama-3.1-70B-Instruct
+datasets: [mmlu]
+num_datapoints_per_dataset: 1000
+seed: 42
+
+filtering:
+  min_confidence: 0.0
+  min_choice_tokens: 1
+  max_choice_tokens: 999
+  skip_negated: true
+  n_choices: 4
+
+split:
+  train_fraction: 0.7
+  dev_fraction: 0.1
+  test_fraction: 0.2
+
+direction:
+  offsets: [-3, -2, -1, 0]
+  adaptive_offsets: true
+
+patching:
+  offsets: [-3, -2, -1, 0]
+  batch_size: 2
+  max_pairs: 200
+
+steering:
+  offsets: [-3, -2, -1, 0]
+  alphas: [0.0, 1.0, 2.0]
+  logit_batch_size: 4
+  cot_alpha: 2.0
+  cot_batch_size: 2
+  # Force all-layers for CoT steering (Llama 3.3 70B has 80 layers).
+  cot_layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+               20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+               40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+               60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+load_in_8bit: false
+load_in_4bit: true
+cache_dir: /scratch-shared/lfletcher
